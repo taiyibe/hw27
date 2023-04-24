@@ -6,9 +6,9 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Basket basket;
-        File bu = new File("basket.txt");
+        File bu = new File("basket.bin");
         if (bu.exists() && !bu.isDirectory()) {
-            basket = Basket.loadFromTxtFile(bu);
+            basket = Basket.loadFromBinFile(bu);
             if (basket == null) {
                 System.out.println("Ошибка загрузки корзины");
                 String[] products = {"Молоко", "Яйца", "Сахар", "Соль", "Мука", "Ванилин"};
@@ -49,7 +49,7 @@ public class Main {
                     continue;
                 }
                 if (basket.addToCart(prodNumber, amountProd)) {
-                    if (!basket.saveTxt(new File("basket.txt"))) {
+                    if (!basket.saveBin(new File("basket.bin"))) {
                         System.out.println("Ошибка сохранения");
                     }
                 } else {
