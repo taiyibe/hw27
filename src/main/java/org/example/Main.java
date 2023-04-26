@@ -1,16 +1,25 @@
 package org.example;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        ObjectMapper mapper = new ObjectMapper();
         Basket basket;
-        File bu = new File("basket.txt");
+        ClientLog lg = new ClientLog();
+        File bu = new File("basket.json");
         if (bu.exists() && !bu.isDirectory()) {
-            basket = Basket.loadFromTxtFile(bu);
-            if (basket == null) {
+            try {
+                basket = mapper.readValue(bu, new TypeReference<>() {
+                });
+            } catch (java.io.IOException e) {
                 System.out.println("Ошибка загрузки корзины");
+                e.printStackTrace();
                 String[] products = {"Молоко", "Яйца", "Сахар", "Соль", "Мука", "Ванилин"};
                 int[] prices = {125, 85, 45, 25, 90, 5};
                 basket = new Basket(products, prices);
@@ -49,8 +58,12 @@ public class Main {
                     continue;
                 }
                 if (basket.addToCart(prodNumber, amountProd)) {
-                    if (!basket.saveTxt(new File("basket.txt"))) {
+                    lg.log(prodNumber, amountProd);
+                    try {
+                        mapper.writeValue(bu, basket);
+                    } catch (IOException e) {
                         System.out.println("Ошибка сохранения");
+                        e.printStackTrace();
                     }
                 } else {
                     System.out.println("Ошибка добавления");
@@ -62,6 +75,7 @@ public class Main {
                 }
             }
         }
+        lg.exportAsCSV(new File("log.csv"));
         basket.printCart();
     }
 }
